@@ -16,3 +16,8 @@ aplikasi ujian online berbasis web ini dibuat dengan menggunakan:
 
 # cara penggunaan
 import sql folder /sql ke dalam database
+
+# tambahan
+jika ada sesuatu terkait penggunaan aplikasi bisa menghubungi:
+1. email : andhika6@gmail.com
+
