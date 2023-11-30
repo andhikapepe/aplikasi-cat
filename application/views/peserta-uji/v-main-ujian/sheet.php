@@ -268,20 +268,28 @@ if (time() >= $soal->waktu_habis) {
     }
 
     let waktu = $('.sisawaktu').data('time');
+
     $('.sisawaktu').countdown(waktu, {
             elapse: true
         })
         .on('update.countdown', function(event) {
-            let $this = $(this)
+            let $this = $(this);
+
             if (event.elapsed) {
                 swal("Oops!", "Waktu Ujian Telah Habis!", "info").then((value) => {
-                    selesai()
-                    window.location.assign(base_url + 'peserta-uji/ujian')
-                })
+                    // Call selesai with a callback function
+                    selesai(function(success) {
+                        if (success) {
+                            window.location.assign(base_url + 'peserta-uji/ujian');
+                        } else {
+                            // Handle error if needed
+                        }
+                    });
+                });
             } else {
-                $this.html(event.strftime('%H:%M:%S '))
+                $this.html(event.strftime('%H:%M:%S '));
             }
-        })
+        });
 
     function selesai(callback) {
         // Call the simpan function before making the AJAX request
@@ -299,7 +307,7 @@ if (time() >= $soal->waktu_habis) {
             success: function(response) {
                 // Handle the successful response (if needed)
                 console.log("POST request successful:", response);
-                callback(true, null); // Call the callback function with success flag and no error message
+                callback(true); // Call the callback function with success flag
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 // Log more information about the error
@@ -311,7 +319,7 @@ if (time() >= $soal->waktu_habis) {
                     console.error("Response text:", jqXHR.responseText);
                 }
 
-                callback(false, "Error saving data. Please try again."); // Call the callback function with failure flag and error message
+                callback(false); // Call the callback function with failure flag
             }
         });
     }
