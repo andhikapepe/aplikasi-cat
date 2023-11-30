@@ -238,21 +238,33 @@ if (time() >= $soal->waktu_habis) {
     }
 
     function simpan_akhir() {
+        // Display the confirmation dialog
         swal({
-                title: "Sudah Yakin?",
-                text: "Pastikan mengisi semua jawaban!",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            })
-            .then((proses) => {
-                if (proses) {
-                    selesai()
-                    window.location.assign(base_url + 'peserta-uji/ujian')
-                } else {
-                    swal("Yey, lanjutkan ujian...")
-                }
-            })
+            title: "Sudah Yakin?",
+            text: "Pastikan mengisi semua jawaban!",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((proses) => {
+            // If the user confirms
+            if (proses) {
+                // Call the selesai function
+                selesai(function(isComplete, errorMessage) {
+                    if (isComplete) {
+                        // If selesai is successful, redirect
+                        window.location.assign(base_url + 'peserta-uji/ujian');
+                    } else {
+                        // If selesai fails, display an error message or handle it accordingly
+                        console.log('The process is true, but selesai() is false. Error:', errorMessage);
+                        swal("Error", errorMessage, "error");
+                        // Add any additional logic or error handling as needed
+                    }
+                });
+            } else {
+                // If the user cancels
+                swal("Yey, lanjutkan ujian...");
+            }
+        });
     }
 
     let waktu = $('.sisawaktu').data('time');
@@ -271,8 +283,10 @@ if (time() >= $soal->waktu_habis) {
             }
         })
 
-    function selesai() {
-        simpan()
+    function selesai(callback) {
+        // Call the simpan function before making the AJAX request
+        simpan();
+
         $.ajax({
             type: "POST",
             url: base_url + "peserta-uji/simpan-akhir",
@@ -280,11 +294,12 @@ if (time() >= $soal->waktu_habis) {
                 id: id_tes
             },
             beforeSend: function() {
-                simpan()
+                // You can perform any actions before the AJAX request if needed
             },
             success: function(response) {
                 // Handle the successful response (if needed)
                 console.log("POST request successful:", response);
+                callback(true, null); // Call the callback function with success flag and no error message
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 // Log more information about the error
@@ -296,8 +311,8 @@ if (time() >= $soal->waktu_habis) {
                     console.error("Response text:", jqXHR.responseText);
                 }
 
-                // Handle the error here or display an error message to the user
+                callback(false, "Error saving data. Please try again."); // Call the callback function with failure flag and error message
             }
-        })
+        });
     }
 </script>
